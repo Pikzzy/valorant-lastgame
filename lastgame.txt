@@ -1,0 +1,26 @@
+import requests
+from bs4 import BeautifulSoup
+
+RIOT_ID = "AvalancheDePipi-0911"  # note : le "#" devient "-" dans l'URL tracker.gg
+URL = f"https://tracker.gg/valorant/profile/riot/{RIOT_ID}/matches"
+
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+response = requests.get(URL, headers=headers)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+match = soup.find("li", class_="match")
+map_name = match.find("span", class_="map").text.strip()
+score = match.find("span", class_="score").text.strip()
+result_tag = match.find("div", class_="match__result")
+result = result_tag.text.strip() if result_tag else "Inconnu"
+rr_change_tag = match.find("span", class_="rating-change")
+rr_change = rr_change_tag.text.strip() if rr_change_tag else "RR inconnu"
+
+output = f"Dernière game Valorant : {result} {score} sur {map_name} – {rr_change}"
+with open("lastgame.txt", "w", encoding="utf-8") as f:
+    f.write(output)
+
+print("✅ Données de la dernière game enregistrées.")
